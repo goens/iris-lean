@@ -13,7 +13,8 @@ def apply' (goal : MVarId) (name : Name) : TacticM <| Option <| List MVarId := d
   let some value := ci.value?
     | return none
 
-  let goals ← withoutRecover <| withReducible <| goal.apply value ⟨.nonDependentOnly⟩
+  -- Set synthAssignedInstances to true, approx false. Seemed like right defaults, but just a guess.
+  let goals ← withoutRecover <| withReducible <| goal.apply value ⟨.nonDependentOnly, true, false⟩
   setGoals <| goals ++ (← getUnsolvedGoals)
   return goals
 
