@@ -7,12 +7,6 @@ namespace Iris.Proofmode
 open Iris.BI Iris.Std
 open BI
 
-/-- Introduce one or multiple let-bound variables. -/
-scoped macro "intro_let " names:(colGt Lean.binderIdent)* : tactic => `(
-  intro _ ;
-  split ;
-  rename_i $[$names]*
-)
 
 -- proof mode
 theorem tac_start [BI PROP] (P : PROP) :
@@ -50,7 +44,8 @@ theorem tac_clear [BI PROP] {Δ : Envs PROP} (i : EnvsIndex.of Δ) (Q : PROP) :
   envs_entails (Δ.delete true i) Q →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   intro inst_affine_absorbing
   cases p
   all_goals
@@ -199,9 +194,11 @@ theorem tac_specialize [BI PROP] {Δ : Envs PROP} (rpPremise rpWand : Bool) (i j
   envs_entails (Δ'.replace rpWand j' (p && q) P2) R →
   envs_entails Δ R
 := by
-  intro_let p P1 h_lookup_i
+  split
+  rename_i p P1 h_lookup_i
   intro Δ' j'
-  intro_let q Q h_lookup_j'
+  split
+  rename_i q Q h_lookup_j'
   simp only [envs_entails]
   intro _ h_entails
   rw' [
@@ -230,7 +227,8 @@ theorem tac_specialize_forall [BI PROP] {Δ : Envs PROP} (rpWand : Bool) (i : En
   (∃ x, envs_entails (Δ.replace rpWand i p (Φ x)) Q) →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ ⟨x, h_entails⟩
   rw' [
@@ -268,7 +266,8 @@ theorem tac_exist_destruct [BI PROP] {Δ : Envs PROP} (i : EnvsIndex.of Δ) {Φ 
   (∀ a, envs_entails (Δ.replace true i p (Φ a)) Q) →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails, Envs.replace]
   intro _ h_entails
   rw' [
@@ -325,7 +324,8 @@ theorem tac_assumption [BI PROP] {Δ : Envs PROP} (i : EnvsIndex.of Δ) (Q : PRO
   [TCIte Δ'.spatial.isEmpty TCTrue (TCOr (Absorbing Q) (AffineEnv Δ'.spatial))] →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ inst_absorbing_affine_env
   rw' [envs_lookup_delete_sound true h_lookup]
@@ -354,8 +354,9 @@ theorem tac_false_destruct [BI PROP] {Δ : Envs PROP} (i : EnvsIndex.of Δ) (Q :
   let (_, P) := Δ.lookup i
   P = `[iprop| False] →
   envs_entails Δ Q
-:= by
-  intro_let p P h_lookup
+:= by 
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro h_false
   rw' [
@@ -373,7 +374,8 @@ theorem tac_pure [BI PROP] {Δ : Envs PROP} {φ : Prop} (i : EnvsIndex.of Δ) (Q
   (φ → envs_entails (Δ.delete true i) Q) →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ inst_affine_absorbing h_entails
   rw' [envs_lookup_delete_sound true h_lookup]
@@ -416,7 +418,8 @@ theorem tac_intuitionistic [BI PROP] {Δ : Envs PROP} {P' : PROP} (i : EnvsIndex
   envs_entails (Δ.replace true i true P') Q →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ inst_affine_absorbing h_entails
   rw' [envs_lookup_replace_sound true true P' h_lookup]
@@ -455,8 +458,9 @@ theorem tac_spatial [BI PROP] {Δ : Envs PROP} {P' : PROP} (i : EnvsIndex.of Δ)
   [FromAffinely P' P p] →
   envs_entails (Δ.replace true i false P') Q →
   envs_entails Δ Q
-:= by
-  intro_let p P h_lookup
+:= by 
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ h_entails
   rw' [envs_lookup_replace_sound true false P' h_lookup]
@@ -497,7 +501,8 @@ theorem tac_sep_split [BI PROP] {Δ : Envs PROP} {Q1 Q2 : PROP} (mask : List Boo
   envs_entails Δ₂ Q2 →
   envs_entails Δ P
 := by
-  intro_let Δ₁ Δ₂ h_split
+  split
+  rename_i Δ₁ Δ₂ h_split
   simp only [envs_entails]
   intro _ h_entails_1 h_entails_2
   rw' [
@@ -543,7 +548,8 @@ theorem tac_conjunction_destruct [BI PROP] {Δ : Envs PROP} {P1 P2 : PROP} (i : 
   envs_entails (Δ |>.delete true i |>.append p P1 |>.append p P2) Q →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro inst_conjunction h_entails
   rw' [
@@ -579,7 +585,8 @@ theorem tac_conjunction_destruct_choice [BI PROP] {Δ : Envs PROP} {P1 P2 : PROP
   envs_entails (if d then Δ.replace true i p P1 else Δ.replace true i p P2) Q →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ h_entails
   cases d
@@ -605,7 +612,8 @@ theorem tac_disjunction_destruct [BI PROP] {Δ : Envs PROP} {P1 P2 : PROP} (i : 
   envs_entails (Δ.replace true i p P2) Q →
   envs_entails Δ Q
 := by
-  intro_let p P h_lookup
+  split
+  rename_i p P h_lookup
   simp only [envs_entails]
   intro _ h_entails_1 h_entails_2
   rw' [envs_lookup_delete_sound true h_lookup] ; simp only

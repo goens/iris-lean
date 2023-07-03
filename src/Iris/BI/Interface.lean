@@ -49,6 +49,7 @@ macro_rules
 
 /- This is necessary since the `∀` syntax is not defined using `explicitBinders` and we can
 therefore not use `expandExplicitBinders` as for `∃`. -/
+set_option maxHeartbeats 400000
 macro_rules
   | `(`[iprop| ∀ _, $Ψ])                    => ``(BIBase.forall (fun _         => `[iprop| $Ψ]))
   | `(`[iprop| ∀ $x:ident, $Ψ])             => ``(BIBase.forall (fun $x        => `[iprop| $Ψ]))
@@ -61,6 +62,8 @@ macro_rules
   | `(`[iprop| ∀ {$x:ident : $t}, $Ψ])      => ``(BIBase.forall (fun ($x : $t) => `[iprop| $Ψ]))
   | `(`[iprop| ∀ {$x:ident $xs* : $t}, $Ψ]) => ``(BIBase.forall (fun ($x : $t) => `[iprop| ∀ {$xs* : $t}, $Ψ]))
   | `(`[iprop| ∀ $x $xs*, $Ψ])              => ``(`[iprop| ∀ $x, ∀ $xs*, $Ψ])
+set_option maxHeartbeats 200000
+
 
 -- `iprop` macros
 macro_rules
